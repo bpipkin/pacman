@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Pacman</title>
+    	<style type="text/css">
+      		canvas { border: 3px solid black; }
+    	</style>
+	<script type="text/javascript">
+
+
+	var w, h;
+	var dots;
+	var dotHit = false, whichDotHit = -1;
+	var powerups;
+	var score = 0;
+	var numOfLives = 2;
+	
+	var ctx;
+	var interval = 10;
+ 	
+	var canvas;
+	var intervalId = 0;
+	var starttime,starttime2,starttime3;
+	var timepassed;
+	var now;
+
+	// ** Color
+	var backcolor = "#000000";
+	var dotcolor = "#FFFFFF";
+	var bluecolor = "#2121de";
+	var blinkycolor = backcolor;
+	var pinkycolor = backcolor;
+	var inkycolor = backcolor;
+	var clydecolor = backcolor;
+	var gatecolor = backcolor;
+	var temp;
+	var flash1color = backcolor;
+	var flash2color = backcolor;
+
+	//Sounds
+	var intro;
+	var waka;
+	var pacmandying;
+
+	var gameover, ready, ben, playing = true, win;
+	var number0, number1, number2, number3, number4, number5, number6, number7, number8, number9;
+	var flash1, flash2;
+	var areBlue = false;
+	var areFlashing = false;
+	var blinkyFlashing = false;
+	var pinkyFlashing = false
+	var inkyFlashing = false;
+	var clydeFlashing = false;
+	var startFlashingTime;
+
+	var pacman, pacman_life1, pacman_life2;
+	var pacman_slightlyopen_r, pacman_open_r;
+	var pacman_slightlyopen_l, pacman_open_l;
+	var pacman_slightlyopen_u, pacman_open_u;
+	var pacman_slightlyopen_d, pacman_open_d;
+	var pacman_dying1, pacman_dying2, pacman_dying3, pacman_dying4, pacman_dying5,
+		pacman_dying6, pacman_dying7, pacman_dying8;
+	var pacsize;
+
+	var blinky_up1, blinky_up2, blinky_down1, blinky_down2, blinky_right1, blinky_right2, blinky_left1, blinky_left2;
+	var blinkyX = 212, blinkyY = 221;
+	var blinkyright = false;
+	var blinkyleft = false;
+	var blinkyup = false;
+	var blinkydown = false;
+	var blinkycounter = 0;
+
+	var pinky_up1, pinky_up2, pinky_down1, pinky_down2, pinky_right1, pinky_right2, pinky_left1, pinky_left2;
+	var pinkyX = 211, pinkyY = 264;
+	var pinkyright = false;
+	var pinkyleft = false;
+	var pinkyup = false;
+	var pinkydown = false;
+	var pinkycounter = 0;
+
+        var inky_up1, inky_up2, inky_down1, inky_down2, inky_right1, inky_right2, inky_left1, inky_left2;
+        var inkyX = 181, inkyY = 264;
+        var inkyright = false;
+        var inkyleft = false;
+        var inkyup = false;
+        var inkydown = false;
+        var inkycounter = 0;
+
+        var clyde_up1, clyde_up2, clyde_down1, clyde_down2, clyde_right1, clyde_right2, clyde_left1, clyde_left2;
+        var clydeX = 241, clydeY = 264;
+        var clyderight = false;
+        var clydeleft = false;
+        var clydeup = false;
+        var clydedown = false;
+        var clydecounter = 0;
+
+	var letPinkyOut = false, letInkyOut = false, letClydeOut = false;
+	var pinkyIsOut = false, inkyIsOut = false, clydeIsOut = false;
+
+	var level;
+
+	var userX, userY, userMove;
+	var mouthcounter;
+	var mouthmod = 30;
+
+	var pacright = false;
+	var pacleft = false;
+	var pacup = false;
+	var pacdown = false;
+
+
+	
+	function init() {
+	  starttime = new Date();
+
+	  canvas = document.getElementById('canvas');
+	  ctx = canvas.getContext('2d');
+	
+	  w = ctx.canvas.width;
+	  h = ctx.canvas.height;
+	  pacsize = 28;
+	  userX = (w - 28)/2;
+	  userY = h - 165;
+	  userMove = 1;
+
+	  intro = new Audio("sounds/intro.mp3");
+	  waka = new Audio("sounds/waka.mp3");
+	  pacmandying = new Audio("sounds/pacmandying.mp3");
+	  intro.play();
+
+
+	  gameover = new Image();
+
+	  initializeDots();
+	  initializePowerups();
+
+	  level = new Image();
+	  level.onload = ctx.drawImage(level,0,0);
+	  level.src = 'img/level1.png';
+
+          ben = new Image();
+          ben.onload = ctx.drawImage(ben,5,5);
+          ben.src = 'img/ben2.png';
+	  
+	  ready = new Image();
+	  ready.src = 'img/ready.png';
+	  gameover = new Image();
+	  gameover.src = 'img/gameover3.png';
+
+	  number0 = new Image();
+	  number0.src = 'img/numbers/0.png';
+	  number1 = new Image();
+          number1.src = 'img/numbers/1.png';
+	  number2 = new Image();
+          number2.src = 'img/numbers/2.png';
+	  number3 = new Image();
+          number3.src = 'img/numbers/3.png';
+	  number4 = new Image();
+          number4.src = 'img/numbers/4.png';
+	  number5 = new Image();
+          number5.src = 'img/numbers/5.png';
+	  number6 = new Image();
+          number6.src = 'img/numbers/6.png';
+	  number7 = new Image();
+          number7.src = 'img/numbers/7.png';
+	  number8 = new Image();
+          number8.src = 'img/numbers/8.png';
+	  number9 = new Image();
+          number9.src = 'img/numbers/9.png';
+
+	
+	  pacman = new Image();
+	  pacman.onload = ctx.drawImage(pacman,userX,userY);
+	  pacman.src = 'img/pacman-closed2.png';
+
+	  pacman_slightlyopen_r = new Image();
+	  pacman_slightlyopen_r.src = 'img/pacman-halfopen-r2.png';
+	  pacman_open_r = new Image();
+	  pacman_open_r.src = 'img/pacman-open-r2.png';
+
+	  pacman_slightlyopen_l = new Image();
+	  pacman_slightlyopen_l.src = 'img/pacman-halfopen-l2.png';
+	  pacman_open_l = new Image();
+	  pacman_open_l.src = 'img/pacman-open-l2.png';
+
+	  pacman_slightlyopen_u= new Image();
+	  pacman_slightlyopen_u.src = 'img/pacman-halfopen-u2.png';
+	  pacman_open_u= new Image();
+	  pacman_open_u.src = 'img/pacman-open-u2.png';
+
+	  pacman_slightlyopen_d= new Image();
+	  pacman_slightlyopen_d.src = 'img/pacman-halfopen-d2.png';
+	  pacman_open_d= new Image();
+	  pacman_open_d.src = 'img/pacman-open-d2.png';
+
+	  pacman_dying1 = new Image();
+	  pacman_dying1.src = 'img/pacman-dying1.png';
+          pacman_dying2 = new Image();
+	  pacman_dying2.src = 'img/pacman-dying2.png';
+          pacman_dying3 = new Image();
+	  pacman_dying3.src = 'img/pacman-dying3.png';
+          pacman_dying4 = new Image();
+	  pacman_dying4.src = 'img/pacman-dying4.png';
+          pacman_dying5 = new Image();
+	  pacman_dying5.src = 'img/pacman-dying5.png';
+          pacman_dying6 = new Image();
+	  pacman_dying6.src = 'img/pacman-dying6.png';
+          pacman_dying7 = new Image();
+	  pacman_dying7.src = 'img/pacman-dying7.png';
+          pacman_dying8 = new Image();
+	  pacman_dying8.src = 'img/pacman-dying8.png';
+
+	  blinky_up1 = new Image();
+	  blinky_up1.src = 'img/blinky/blinky-up1.png';
+	  blinky_up1.onload = ctx.drawImage(blinky_up1,blinkyX,blinkyY);
+	  blinky_up2 = new Image();
+	  blinky_up2.src = 'img/blinky/blinky-up2.png';
+
+	  blinky_down1 = new Image();
+	  blinky_down1.src = 'img/blinky/blinky-down1.png';
+	  blinky_down2 = new Image();
+	  blinky_down2.src = 'img/blinky/blinky-down2.png';
+
+	  blinky_right1 = new Image();
+	  blinky_right1.src = 'img/blinky/blinky-right1.png';
+	  blinky_right2 = new Image();
+	  blinky_right2.src = 'img/blinky/blinky-right2.png';
+	
+	  blinky_left1 = new Image();
+	  blinky_left1.src = 'img/blinky/blinky-left1.png';
+	  blinky_left2 = new Image();
+	  blinky_left2.src = 'img/blinky/blinky-left2.png';
+
+	  blinkyup = true;
+	  temp = ctx.getImageData(blinkyX + pacsize / 2, blinkyY + pacsize / 2,1,1).data;
+	  blinkycolor = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+          pinky_up1 = new Image();
+          pinky_up1.src = 'img/pinky/pinky-up1.png';
+          pinky_up1.onload = ctx.drawImage(pinky_up1,pinkyX,pinkyY);
+          pinky_up2 = new Image();
+          pinky_up2.src = 'img/pinky/pinky-up2.png';
+
+          pinky_down1 = new Image();
+          pinky_down1.src = 'img/pinky/pinky-down1.png';
+          pinky_down2 = new Image();
+          pinky_down2.src = 'img/pinky/pinky-down2.png';
+
+          pinky_right1 = new Image();
+          pinky_right1.src = 'img/pinky/pinky-right1.png';
+          pinky_right2 = new Image();
+          pinky_right2.src = 'img/pinky/pinky-right2.png';
+
+          pinky_left1 = new Image();
+          pinky_left1.src = 'img/pinky/pinky-left1.png';
+          pinky_left2 = new Image();
+          pinky_left2.src = 'img/pinky/pinky-left2.png';
+
+	  pinkyup = true;
+	  temp = ctx.getImageData(pinkyX + pacsize / 2, pinkyY + pacsize / 2,1,1).data;
+	  pinkycolor = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+          inky_up1 = new Image();
+          inky_up1.src = 'img/inky/inky-up1.png';
+          inky_up1.onload = ctx.drawImage(inky_up1,inkyX,inkyY);
+          inky_up2 = new Image();
+          inky_up2.src = 'img/inky/inky-up2.png';
+
+          inky_down1 = new Image();
+          inky_down1.src = 'img/inky/inky-down1.png';
+          inky_down2 = new Image();
+          inky_down2.src = 'img/inky/inky-down2.png';
+
+          inky_right1 = new Image();
+          inky_right1.src = 'img/inky/inky-right1.png';
+          inky_right2 = new Image();
+          inky_right2.src = 'img/inky/inky-right2.png';
+
+          inky_left1 = new Image();
+          inky_left1.src = 'img/inky/inky-left1.png';
+          inky_left2 = new Image();
+          inky_left2.src = 'img/inky/inky-left2.png';
+
+          inkyup = true;
+	  temp = ctx.getImageData(inkyX + pacsize / 2, inkyY + pacsize / 2,1,1).data;
+	  inkycolor = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+          clyde_up1 = new Image();
+          clyde_up1.src = 'img/clyde/clyde-up1.png';
+          clyde_up1.onload = ctx.drawImage(clyde_up1,clydeX,clydeY);
+          clyde_up2 = new Image();
+          clyde_up2.src = 'img/clyde/clyde-up2.png';
+
+          clyde_down1 = new Image();
+          clyde_down1.src = 'img/clyde/clyde-down1.png';
+          clyde_down2 = new Image();
+          clyde_down2.src = 'img/clyde/clyde-down2.png';
+
+          clyde_right1 = new Image();
+          clyde_right1.src = 'img/clyde/clyde-right1.png';
+          clyde_right2 = new Image();
+          clyde_right2.src = 'img/clyde/clyde-right2.png';
+
+          clyde_left1 = new Image();
+          clyde_left1.src = 'img/clyde/clyde-left1.png';
+          clyde_left2 = new Image();
+          clyde_left2.src = 'img/clyde/clyde-left2.png';
+
+          clydeup = true;
+	  temp = ctx.getImageData(clydeX + pacsize / 2, clydeY + pacsize / 2,1,1).data;
+	  clydecolor = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+	  flash1 = new Image();
+	  flash1.src = 'img/flashingghosts/flash1.gif';
+	  flash1.onload = ctx.drawImage(flash1,100,100);
+	  flash2 = new Image();
+	  flash2.src = 'img/flashingghosts/flash2.gif';
+	  flash2.onoad = ctx.drawImage(flash2,200,200);
+	
+	  temp = ctx.getImageData(100 + pacsize / 2, 100 + pacsize / 2,1,1).data;
+	  flash1color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+	  temp = ctx.getImageData(200 + pacsize / 2, 200 + pacsize / 2,1,1).data;
+	  flash2color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+
+	  mouthcounter = 0;
+	  pacleft = true;
+	  areFlashing = false;
+	  win = false;
+
+	  window.addEventListener('keydown',onKeydown,true);
+
+	  intervalId = setInterval( draw, interval );
+	}//end init
+
+	function initializePowerups() {
+		powerups = new Array();
+		powerups[0] = new dot(420,108,true);
+		powerups[1] = new dot(29,108,true);
+		powerups[2] = new dot(29,423,true);
+		powerups[3] = new dot(420,423,true);
+	}//end initializePowerups()
+
+	function drawPowerups() {
+		for (var i = 0; i < powerups.length; i++) {
+			if (powerups[i].visible == true)
+				circle(powerups[i].x,powerups[i].y);
+		}//end for loop
+	}//end drawPowerups()
+
+	function dot(x,y,visible) {
+		this.x = x;
+		this.y = y;
+		this.visible = visible;
+	}//end dot()
+
+	function initializeDots() {
+		dots = new Array();
+		var i,arrayCounter = 0;
+		var mid = 222;
+		var x = mid, y = 511, mult = 15;
+		var originaly = y;
+		dots[arrayCounter++] = new dot(x,y,true);
+		for (i = 1; i <= 13; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x + mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+		}
+		var x2 = Math.round(x - mult*(i - 1));
+		x = Math.round(x + mult*(i - 1));
+		y -= mult;
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y - mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y - mult*i),true);
+		}
+		y -=  Math.round(mult*(i - 1));
+		x -= mult;
+		x2 += mult;
+		for (i = 0; i < 5; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		y -= mult;
+		x -= Math.round(mult*(i - 1));
+		x2 += Math.round(mult*(i - 1));
+		for (i = 0; i < 26; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y - mult*i),true);
+			dots[arrayCounter++] = new dot(x2, Math.round(y - mult*i),true);
+		}
+		y -= Math.round(mult*(i - 1));
+		x += mult;
+		x2 -= mult;
+		for (i = 0; i < 5; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x + mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 - mult*i),y,true);
+		}
+		y += mult;
+		x += Math.round(mult*(i-1));
+		x2 -= Math.round(mult*(i-1));
+		for (i = 0; i < 7; i++) {
+			if (i == 1)
+				continue;
+			dots[arrayCounter++] = new dot(x,Math.round(y + mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y + mult*i),true);
+		}
+		y += Math.round(mult*(i-1));
+		x -= mult;
+		x2 += mult;
+		for (i = 0; i < 4; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		y -= Math.round(mult * 3);
+		for (i = 0; i < 4; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		x -= mult*(i);
+		x2 += mult*(i);
+		for (i = 0; i < 16; i++)
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+		y -= Math.round(mult*4);
+		for (i = 0; i < 7; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		y += mult;
+		x -= Math.round(mult*(i-1));
+		x2 += Math.round(mult*(i-1));
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y + mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y + mult*i),true);
+		}
+		y += mult*(i+1);
+		x += Math.round(mult*3);
+		x2 -= Math.round(mult*3);
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y + mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y + mult*i),true);
+		}
+		x -= mult;
+		x2 += mult;
+		y += Math.round(mult * 2);
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		x = Math.round(mid + mult*2);
+		x2 = Math.round(mid - mult*2);
+		y = originaly - mult;
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y - mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y - mult*i),true);
+		}
+		x += mult;
+		x2 -= mult;
+		y -= Math.round(mult*(i-1));
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x + mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 - mult*i),y,true);
+		}
+		x += Math.round(mult*(i-1));
+		x2 -= Math.round(mult*(i-1));
+		y -= mult;
+		for (i = 0; i < 2; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y - mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y - mult*i),true);
+		}
+		y -= Math.round(mult*i);
+		x += mult*2;
+		x2 -= mult*2;
+		for (i = 0; i < 7; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		y -= mult;
+		x -= Math.round(mult*(i-2));
+		x2 += Math.round(mult*(i-2));
+		for (i = 0; i < 3; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y - mult*i),true);
+			dots[arrayCounter++] = new dot(x2, Math.round(y - mult*i), true);
+		}
+		y -= Math.round(mult*(i-1));
+		x += mult;
+		x2 -= mult;
+		for (i = 0; i < 5; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x + mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 - mult*i),y,true);
+		}
+		x += mult*(i+1);
+		x2 -= mult*(i+1);
+		for (i = 0; i < 5; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x + mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 - mult*i),y,true);
+		}
+		x += Math.round(mult*(i-1));
+		x2 -= Math.round(mult*(i-1));
+		y += mult;
+		for (i = 0; i < 2; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y + mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y + mult*i),true);
+		}
+		x -= mult;
+		x2 += mult;
+		y += Math.round(mult*i);
+		for (i = 0; i < 2; i++) {
+			dots[arrayCounter++] = new dot(Math.round(x - mult*i),y,true);
+			dots[arrayCounter++] = new dot(Math.round(x2 + mult*i),y,true);
+		}
+		x -= Math.round(mult);
+		x2 += Math.round(mult);
+		y += mult;
+		for (i = 0; i < 2; i++) {
+			dots[arrayCounter++] = new dot(x,Math.round(y + mult*i),true);
+			dots[arrayCounter++] = new dot(x2,Math.round(y + mult*i),true);
+		}
+	}//end initializeDots
+
+	function eatDots() {
+		var x = userX, x2 = userX + pacsize;
+		var y = userY, y2 = userY + pacsize;
+		for (var i = 0; i < dots.length; i++) {
+			if (dots[i].x >= x && dots[i].x <= x2 && dots[i].y >= y && dots[i].y <= y2 && dots[i].x + 5 >= x && dots[i].x + 5 <= x2 && dots[i].y + 5 >= y && dots[i].y + 5 <= y2 && dots[i].visible == true) {
+				dots[i].visible = false;
+				score += 10;
+				waka.play();
+			}//end if
+		}//end for loop
+	}//end eatDots()
+
+	function eatPowerups() {
+		for (var i = 0; i < powerups.length; i++) {
+			if (powerups[i].x >= userX + pacsize / 4 && 
+			    powerups[i].x <= userX + pacsize * 3 / 4  && 
+			    powerups[i].y >= userY + pacsize / 4 && 
+			    powerups[i].y <= userY + pacsize * 3 / 4 &&
+			    powerups[i].visible) {
+				powerups[i].visible = false;
+				areBlue = true;
+				blinkyFlashing = true;
+				pinkyFlashing = true;
+				inkyFlashing = true;
+				clydeFlashing = true;
+				startFlashingTime = new Date();
+			}
+		}//end for loop
+	}//end eatPowerups
+
+	function drawDots() {
+		ctx.fillStyle = dotcolor;
+		for (var i = 0; i < dots.length; i++) {
+			if (dots[i].visible == true)
+				ctx.fillRect(dots[i].x,dots[i].y,5,5);
+		}//end for loop
+	}//end drawDots()
+
+	function onKeydown(evt) {
+
+	  switch (evt.keyCode) {
+
+	    case 37: //pacleft arrow
+	      pacleft = true;
+	      pacright = false;
+	      pacup = false;
+	      pacdown = false;
+	      //mouthcounter = 0;
+	      break;
+
+	    case 39: //pacright arrow
+		pacleft = false;
+		pacright = true;
+		pacup = false;
+		pacdown = false;
+	        //mouthcounter = 0;
+	      break;
+	
+	    case 38: //pacup arrow
+		pacleft = false;
+		pacright = false;
+		pacup = true;
+		pacdown = false;
+	        //mouthcounter = 0;
+		break;
+
+	    case 40: //pacdown arrow
+		pacleft = false;
+		pacright = false;
+		pacup = false;
+		pacdown = true;
+	        //mouthcounter = 0;
+	     	break;
+
+	  }//end switch
+	}//end onKeydown()
+
+	function onKeyup() {}
+	
+	function rect( x, y, w, h ) 
+		{
+  			ctx.beginPath();
+  			ctx.rect(x,y,w,h);
+  			ctx.closePath();
+  			ctx.fill();
+		}
+
+	function circle(x,y) {
+		ctx.beginPath();
+		ctx.arc(x,y,7,0,Math.PI*2,true);
+		ctx.closePath();
+		ctx.fill();
+	}//end circle
+
+        function clear() {
+          ctx.clearRect(0, 0, w, h);
+          rect(0, 0, w, h);
+        }	
+
+	function rgbToHex(r,g,b) {
+	  return ((r << 16) | (g << 8) | b).toString(16);
+	}//end rgbToHex()
+
+	function movePacman() {
+		if (pacleft == true) {
+			var c;
+			var hex = backcolor;
+			for (var i = userY; (i <= userY + pacsize) && (hex == backcolor); i++){// += pacsize / 3) {
+			  c = ctx.getImageData(userX - userMove,i,1,1).data;
+	                  hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+			}
+			
+			if (hex == bluecolor) {
+				mouthcounter = mouthmod - 1;
+				waka.pause();
+		        } else if (userX - userMove > 10) {
+				userX -= userMove;
+	                        mouthcounter++;
+	                } else if (userY <= 295 && userY >= 250) {
+	                        if (userX <= -pacsize)
+	                          userX = w;
+				else
+				  userX -= userMove;
+				  mouthcounter++;
+			} else {
+				userX = 10;
+	                        mouthcounter = mouthmod - 1;
+				waka.pause();
+			}
+		}// end pacleft
+		else if (pacright == true) {
+		        var c;
+                        var hex = backcolor;
+                        for (var i = userY; (i <= userY + pacsize) && (hex == backcolor); i++){// += pacsize / 3) {
+                          c = ctx.getImageData(userX + pacsize + userMove,i,1,1).data;
+                          hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                        }
+			
+			if (hex == bluecolor ) {
+				mouthcounter = mouthmod - 1;
+				waka.pause();
+			} else if (userX + userMove + pacsize < w) {
+				userX += userMove;
+				mouthcounter++;
+			 } else if (userY <= 295 && userY >= 250) {
+              		        if (userX >= w + pacsize)
+			          userX = - pacsize;
+			        else
+			          userX += userMove;
+                                mouthcounter++;
+			} else {
+				userX = w - pacsize;
+				mouthcounter = mouthmod - 1;
+				waka.pause();
+			}
+		}//end pacright
+		else if (pacup == true) {
+                        var c;
+                        var hex = backcolor;
+                        for (var i = userX; (i <= userX + pacsize) && (hex == backcolor); i++){// += pacsize / 3) {
+                          c = ctx.getImageData(i,userY - userMove,1,1).data;
+                          hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                        }
+		       	if (hex == bluecolor ) {
+				mouthcounter = mouthmod - 1;
+				waka.pause();
+                        } else if (userY - userMove > 58) {
+				userY -= userMove;
+	                        mouthcounter++;
+			} else {
+				userY = 58;
+	                        mouthcounter = mouthmod - 1;
+				waka.pause();
+			}
+		}//end pacup
+		else if (pacdown == true) {
+                        var c;
+                        var hex = backcolor;
+                        for (var i = userX; (i <= userX + pacsize) && (hex == backcolor); i++){// += pacsize / 3) {
+                          c = ctx.getImageData(i,userY + pacsize + userMove,1,1).data;
+                          hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                        }
+                        if (hex == bluecolor || (userX >= 208 && userX && userX <= 240 && userY + pacsize >= 245 && userY + pacsize <= 250)) {
+                                mouthcounter = mouthmod - 1;
+				waka.pause();
+                        } else if (userY + userMove + pacsize < h - 42) {
+				userY += userMove;
+				mouthcounter++;
+			} else {
+				userY = h - 42 - pacsize;
+				mouthcounter = mouthmod - 1;
+				waka.pause();
+			}
+		}//end pacdown
+	}//end pacmove
+
+	function moveBlinky() {
+	  var direction;
+
+	//blinky
+	  if (blinkyleft == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = blinkyY; (i <= blinkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(blinkyX - userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+				blinkyright = true;
+				blinkyleft = false;
+				blinkyup = false;
+				blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = true;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+			    	blinkydown = true;
+			}
+		}
+		else if (blinkyX - userMove > 0) {
+			blinkyX -= userMove;
+	        } else if (blinkyY <= 295 && blinkyY >= 250) {
+                        if (blinkyX <= -pacsize)
+                          blinkyX = w;
+			else
+			  blinkyX -= userMove;
+		} else {
+			blinkyX = 10;
+		}
+	}// end blinkyleft
+	else if (blinkyright == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = blinkyY; (i <= blinkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(blinkyX + pacsize + userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	blinkyright = false;
+			    	blinkyleft = true;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = true;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+				blinkydown = true;
+			}
+		}
+		else if (blinkyX + pacsize + userMove > 10) {
+			blinkyX += userMove;
+	        } else if (blinkyY <= 295 && blinkyY >= 250) {
+                        if (blinkyX >= w + pacsize)
+                          blinkyX = -pacsize;
+			else
+			  blinkyX += userMove;
+		} else {
+			blinkyX = w - pacsize;
+		}
+	}// end blinkyright
+
+	else if (blinkyup == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = blinkyX; (i <= blinkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(i,blinkyY - userMove,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor  || (blinkyX >= 208 && blinkyX <= 240 && blinkyY >= 245 && blinkyY <= 250)) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	blinkyright = true;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = true;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+				blinkydown = true;
+			}
+		}
+		else if (blinkyY - userMove > 58) {
+			blinkyY -= userMove;
+			blinkycounter++;
+		} else {
+			blinkyY = 58;
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	blinkyright = true;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = true;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+				blinkydown = true;
+			}
+		}
+	}// end blinkyup
+
+	else if (blinkydown == true ) {
+		var c;
+		var hex = backcolor;
+		for (var i = blinkyX; (i <= blinkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+                	c = ctx.getImageData(i,blinkyY + pacsize + userMove,1,1).data;
+                	hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                }
+                if (hex == bluecolor  || (blinkyX >= 208 && blinkyX <= 240 && blinkyY + pacsize >= 245 && blinkyY + pacsize <= 250)) {
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	blinkyright = true;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = true;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = true;
+				blinkydown = false;
+			}
+		}
+                else if (blinkyY + userMove + pacsize < h - 42) {
+			blinkyY += userMove;
+		} else {
+			blinkyY = h - 42 - pacsize;
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	blinkyright = true;
+			    	blinkyleft = false;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 1) {
+			    	blinkyright = false;
+			    	blinkyleft = true;
+			    	blinkyup = false;
+			    	blinkydown = false;
+			} else if (direction == 2) {
+			    	blinkyright = false;
+			    	blinkyleft = false;
+			    	blinkyup = true;
+				blinkydown = false;
+			}
+		}
+	}//end blinkydown
+
+	blinkycounter++;
+	}//end moveBlinky
+
+function movePinky() {
+	  var direction;
+
+	//pinky
+	  if (pinkyleft == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = pinkyY; (i <= pinkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(pinkyX - userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+				pinkyright = true;
+				pinkyleft = false;
+				pinkyup = false;
+				pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = true;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+			    	pinkydown = true;
+			}
+		}
+		else if (pinkyX - userMove > 0) {
+			pinkyX -= userMove;
+	        } else if (pinkyY <= 295 && pinkyY >= 250) {
+                        if (pinkyX <= -pacsize)
+                          pinkyX = w;
+			else
+			  pinkyX -= userMove;
+		} else {
+			pinkyX = 10;
+		}
+	}// end pinkyleft
+	else if (pinkyright == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = pinkyY; (i <= pinkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(pinkyX + pacsize + userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	pinkyright = false;
+			    	pinkyleft = true;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = true;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+				pinkydown = true;
+			}
+		}
+		else if (pinkyX + pacsize + userMove > 10) {
+			pinkyX += userMove;
+	        } else if (pinkyY <= 295 && pinkyY >= 250) {
+                        if (pinkyX >= w + pacsize)
+                          pinkyX = -pacsize;
+			else
+			  pinkyX += userMove;
+		} else {
+			pinkyX = w - pacsize;
+		}
+	}// end pinkyright
+
+	else if (pinkyup == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = pinkyX; (i <= pinkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(i,pinkyY - userMove,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor || (pinkyX >= 208 && pinkyX <= 240 && pinkyY >= 245 && pinkyY <= 250)) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	pinkyright = true;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = true;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+				pinkydown = true;
+			}
+		}
+		else if (pinkyY - userMove > 58) {
+			pinkyY -= userMove;
+			pinkycounter++;
+		} else {
+			pinkyY = 58;
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	pinkyright = true;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = true;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+				pinkydown = true;
+			}
+		}
+	}// end pinkyup
+
+	else if (pinkydown == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = pinkyX; (i <= pinkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+                	c = ctx.getImageData(i,pinkyY + pacsize + userMove,1,1).data;
+                	hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                }
+                if (hex == bluecolor || (pinkyX >= 208 && pinkyX <= 240 && pinkyY + pacsize >= 245 && pinkyY + pacsize <= 250)) {
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	pinkyright = true;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = true;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = true;
+				pinkydown = false;
+			}
+		}
+                else if (pinkyY + userMove + pacsize < h - 42) {
+			pinkyY += userMove;
+		} else {
+			pinkyY = h - 42 - pacsize;
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	pinkyright = true;
+			    	pinkyleft = false;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 1) {
+			    	pinkyright = false;
+			    	pinkyleft = true;
+			    	pinkyup = false;
+			    	pinkydown = false;
+			} else if (direction == 2) {
+			    	pinkyright = false;
+			    	pinkyleft = false;
+			    	pinkyup = true;
+				pinkydown = false;
+			}
+		}
+	}//end pinkydown
+
+	pinkycounter++;
+	}//end movepinky
+
+function moveInky() {
+	  var direction;
+
+	//inky
+	  if (inkyleft == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = inkyY; (i <= inkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(inkyX - userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+				inkyright = true;
+				inkyleft = false;
+				inkyup = false;
+				inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = true;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = false;
+			    	inkydown = true;
+			}
+		}
+		else if (inkyX - userMove > 0) {
+			inkyX -= userMove;
+	        } else if (inkyY <= 295 && inkyY >= 250) {
+                        if (inkyX <= -pacsize)
+                          inkyX = w;
+			else
+			  inkyX -= userMove;
+		} else {
+			inkyX = 10;
+		}
+	}// end inkyleft
+	else if (inkyright == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = inkyY; (i <= inkyY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(inkyX + pacsize + userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	inkyright = false;
+			    	inkyleft = true;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = true;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = false;
+				inkydown = true;
+			}
+		}
+		else if (inkyX + pacsize + userMove > 10) {
+			inkyX += userMove;
+	        } else if (inkyY <= 295 && inkyY >= 250) {
+                        if (inkyX >= w + pacsize)
+                          inkyX = -pacsize;
+			else
+			  inkyX += userMove;
+		} else {
+			inkyX = w - pacsize;
+		}
+	}// end inkyright
+
+	else if (inkyup == true || (userX >= 208 && userX && userX <= 240 && userY + pacsize >= 245 && userY + pacsize <= 250)) {
+		var c;
+		var hex = backcolor;
+		for (var i = inkyX; (i <= inkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(i,inkyY - userMove,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor || (inkyX >= 208 && inkyX <= 240 && inkyY >= 245 && inkyY <= 250)) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	inkyright = true;
+			    	inkyleft = false;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = true;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = false;
+				inkydown = true;
+			}
+		}
+		else if (inkyY - userMove > 58) {
+			inkyY -= userMove;
+			inkycounter++;
+		} else {
+			inkyY = 58;
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	inkyright = true;
+			    	inkyleft = false;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = true;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = false;
+				inkydown = true;
+			}
+		}
+	}// end inkyup
+
+	else if (inkydown == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = inkyX; (i <= inkyX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+                	c = ctx.getImageData(i,inkyY + pacsize + userMove,1,1).data;
+                	hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                }
+                if (hex == bluecolor || (inkyX >= 208 && inkyX <= 240 && inkyY + pacsize >= 245 && inkyY + pacsize <= 250)) {
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	inkyright = true;
+			    	inkyleft = false;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = true;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = true;
+				inkydown = false;
+			}
+		}
+                else if (inkyY + userMove + pacsize < h - 42) {
+			inkyY += userMove;
+		} else {
+			inkyY = h - 42 - pacsize;
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	inkyright = true;
+			    	inkyleft = false;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 1) {
+			    	inkyright = false;
+			    	inkyleft = true;
+			    	inkyup = false;
+			    	inkydown = false;
+			} else if (direction == 2) {
+			    	inkyright = false;
+			    	inkyleft = false;
+			    	inkyup = true;
+				inkydown = false;
+			}
+		}
+	}//end inkydown
+
+	inkycounter++;
+	}//end moveinky	
+
+function moveClyde() {
+	  var direction;
+
+	//clyde
+	  if (clydeleft == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = clydeY; (i <= clydeY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(clydeX - userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+				clyderight = true;
+				clydeleft = false;
+				clydeup = false;
+				clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = true;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = false;
+			    	clydedown = true;
+			}
+		}
+		else if (clydeX - userMove > 0) {
+			clydeX -= userMove;
+	        } else if (clydeY <= 295 && clydeY >= 250) {
+                        if (clydeX <= -pacsize)
+                          clydeX = w;
+			else
+			  clydeX -= userMove;
+		} else {
+			clydeX = 10;
+		}
+	}// end clydeleft
+	else if (clyderight == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = clydeY; (i <= clydeY + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(clydeX + pacsize + userMove,i,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor ) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	clyderight = false;
+			    	clydeleft = true;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = true;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = false;
+				clydedown = true;
+			}
+		}
+		else if (clydeX + pacsize + userMove > 10) {
+			clydeX += userMove;
+	        } else if (clydeY <= 295 && clydeY >= 250) {
+                        if (clydeX >= w + pacsize)
+                          clydeX = -pacsize;
+			else
+			  clydeX += userMove;
+		} else {
+			clydeX = w - pacsize;
+		}
+	}// end clyderight
+
+	else if (clydeup == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = clydeX; (i <= clydeX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+			c = ctx.getImageData(i,clydeY - userMove,1,1).data;
+			hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+		}
+	        if (hex == bluecolor || (clydeX >= 208 && clydeX <= 240 && clydeY >= 245 && clydeY <= 250)) {
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	clyderight = true;
+			    	clydeleft = false;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = true;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = false;
+				clydedown = true;
+			}
+		}
+		else if (clydeY - userMove > 58) {
+			clydeY -= userMove;
+			clydecounter++;
+		} else {
+			clydeY = 58;
+	  		direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	clyderight = true;
+			    	clydeleft = false;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = true;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = false;
+				clydedown = true;
+			}
+		}
+	}// end clydeup
+
+	else if (clydedown == true) {
+		var c;
+		var hex = backcolor;
+		for (var i = clydeX; (i <= clydeX + pacsize) && (hex == backcolor); i += pacsize / 3) {
+                	c = ctx.getImageData(i,clydeY + pacsize + userMove,1,1).data;
+                	hex = "#" + ("000000" + rgbToHex(c[0],c[1],c[2])).slice(-6);
+                }
+                if (hex == bluecolor  || (clydeX >= 208 && clydeX <= 240 && clydeY + pacsize >= 245 && clydeY + pacsize <= 250)) {
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	clyderight = true;
+			    	clydeleft = false;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = true;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = true;
+				clydedown = false;
+			}
+		}
+                else if (clydeY + userMove + pacsize < h - 42) {
+			clydeY += userMove;
+		} else {
+			clydeY = h - 42 - pacsize;
+                        direction = Math.floor(Math.random() * 100) % 3;
+			if (direction == 0) {
+			    	clyderight = true;
+			    	clydeleft = false;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 1) {
+			    	clyderight = false;
+			    	clydeleft = true;
+			    	clydeup = false;
+			    	clydedown = false;
+			} else if (direction == 2) {
+			    	clyderight = false;
+			    	clydeleft = false;
+			    	clydeup = true;
+				clydedown = false;
+			}
+		}
+	}//end clydedown
+
+	clydecounter++;
+	}//end moveclyde
+
+	function updateTime() {
+		now = new Date();
+		timepassed = now.getTime() - starttime.getTime();
+
+		if (timepassed > 10500)
+			letPinkyOut = true;
+		if (timepassed > 15500)
+			letInkyOut = true;
+		if (timepassed > 20500)
+			letClydeOut = true;
+	}//end updateTime()
+
+	function startPinky() {
+		pinkyX = 212;
+		pinkyY = 221;
+		pinkyleft = true;
+		pinkyright = false;
+		pinkyup = false;
+		pinkydown = false;
+	}//end startPinky()
+
+	function startInky() {
+		inkyX = 212;
+		inkyY = 221;
+		inkyleft = true;
+		inkyright = false;
+		inkyup = false;
+		inkydown = false;
+	}//end startInky()
+
+	function startClyde() {
+		clydeX = 212;
+		clydeY = 221;
+		clydeleft = true;
+		clyderight = false;
+		clydeup = false;
+		clydedown = false;
+	}//end startClyde()
+
+	function pacmanEatsGhosts() {
+		var x = userX + pacsize / 4, x2 = userX + pacsize * 3 / 4;
+		var y = userY + pacsize / 4, y2 = userY + pacsize * 3 / 4;
+		
+		
+	  	temp = ctx.getImageData(x,y,1,1).data;
+	  	var color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+
+		if (color == flash1color || color == flash2color) {
+			if (x >= blinkyX && x <= blinkyX + pacsize && y >= blinkyY && y <= blinkyY + pacsize && blinkyFlashing) {
+				score += 500;
+				blinkyX = 212;
+				blinkyY = 221;
+				blinkyFlashing = false;
+			} else if (x >= pinkyX && x <= pinkyX + pacsize && y >= pinkyY && y <= pinkyY + pacsize) {
+				score += 500;
+				pinkyX = 212;
+				pinkyY = 221;
+				pinkyFlashing = false;
+			} else if (x >= inkyX && x <= inkyX + pacsize && y >= inkyY && y <= inkyY + pacsize) {
+				score += 500;
+				inkyX = 212;
+				inkyY = 221;
+				inkyFlashing = false;
+			} else if (x >= clydeX && x <= clydeX + pacsize && y >= clydeY && y <= clydeY + pacsize) {
+				score += 500;
+				clydeX = 212;
+				clydeY = 221;
+				clydeFlashing = false;
+			} else
+				ghostsEatPacman();
+		}//end if statement
+	}//end pacmanEatsGhosts()
+
+	function ghostsEatPacman() {
+		var x = userX + pacsize / 4, x2 = userX + pacsize * 3 / 4;
+		var y = userY + pacsize / 4, y2 = userY + pacsize * 3 / 4;
+		
+		
+	  	temp = ctx.getImageData(x,y,1,1).data;
+	  	var color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+	
+		if (color == blinkycolor || color == pinkycolor || color == inkycolor || color == clydecolor) {
+			intro.pause();
+			waka.pause();
+			userMove = 0;
+			mouthcounter = 0;
+			pacmandying.play();
+		}
+
+	  	temp = ctx.getImageData(x,y2,1,1).data;
+	  	color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+	
+		if (color == blinkycolor || color == pinkycolor || color == inkycolor || color == clydecolor) {
+			intro.pause();
+			waka.pause();
+			userMove = 0;
+			mouthcounter = 0;
+			pacmandying.play();
+		}
+
+	  	temp = ctx.getImageData(x2,y,1,1).data;
+	  	var color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+	
+		if (color == blinkycolor || color == pinkycolor || color == inkycolor || color == clydecolor) {
+			intro.pause();
+			waka.pause();
+			userMove = 0;
+			mouthcounter = 0;
+			pacmandying.play();
+		}
+
+	  	temp = ctx.getImageData(x2,y2,1,1).data;
+	  	var color = "#" + ("000000" + rgbToHex(temp[0],temp[1],temp[2])).slice(-6);
+	
+		if (color == blinkycolor || color == pinkycolor || color == inkycolor || color == clydecolor) {
+			intro.pause();
+			waka.pause();
+			userMove = 0;
+			mouthcounter = 0;
+			pacmandying.play();
+		}
+
+	}//end ghostsEatPacman()
+
+	function drawLives() {
+		for (var i = 0; i < numOfLives; i++) {
+			ctx.drawImage(pacman_slightlyopen_r,10 + 30*i, h - 28);
+		}//end for loop
+	}//end drawLives()
+
+
+	function startOver() {
+		starttime = new Date();
+		intro.play();
+		mouthmod = 30;
+		userMove = 1;
+		userX = (w - 28)/2;
+	  	userY = h - 165;
+		blinkyX = 212;
+		blinkyY = 221;
+		pinkyX = 211;
+		pinkyY = 264;
+		inkyX = 181;
+		inkyY = 264;
+		clydeX = 241;
+		clydeY = 264;
+
+		pinkyIsOut = false;
+		inkyIsOut = false;
+		clydeIsOut = false;
+		letPinkyOut = false;
+		letInkyOut = false;
+		letClydeOut = false;
+
+		blinkyleft = true;
+		blinkyright = false;
+		blinkyup = false;
+		blinkydown = false;
+		
+		pinkyleft = true;
+		pinkyright = false;
+		pinkyup = false;
+		pinkydown = false;
+		
+		inkyleft = true;
+		inkyright = false;
+		inkyup = false;
+		inkydown = false;
+		
+		clydeleft = true;
+		clyderight = false;
+		clydedown = false;
+		clydeup = false;
+
+		pacleft = true;
+		pacright = false;
+		pacup = false;
+		pacdown = false;
+	}//end startOver()
+
+	function printScore() {
+		var scoreArray = new Array();
+		var scoreCopy = score;
+		for (var i = 0; scoreCopy > 0; scoreCopy = Math.floor(scoreCopy / 10))
+			scoreArray[i++] = scoreCopy % 10;
+	
+		for (var i = scoreArray.length - 1; i >= 0; i -= 1) {
+			if (scoreArray[i] == 0)
+				ctx.drawImage(number0,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 1)
+				ctx.drawImage(number1,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 2)
+				ctx.drawImage(number2,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 3)
+				ctx.drawImage(number3,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 4)
+				ctx.drawImage(number4,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 5)
+				ctx.drawImage(number5,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 6)
+				ctx.drawImage(number6,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 7)
+				ctx.drawImage(number7,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 8)
+				ctx.drawImage(number8,20 + 7*(scoreArray.length - i - 1),30);
+			else if (scoreArray[i] == 9)
+				ctx.drawImage(number9,20 + 7*(scoreArray.length - i - 1),30);
+		}//end for loop
+	}//end printScore
+
+	function draw() {
+	  ctx.fillStyle = backcolor;
+	  clear();
+						    
+          ctx.drawImage(level,0,0);
+
+	  ctx.fillStyle = dotcolor;
+	  drawDots();
+	  drawPowerups();
+	  drawLives();
+          ctx.drawImage(ben,5,5);
+	  printScore();
+
+	  if (!playing) {
+		intro.pause();
+		ctx.drawImage(gameover,158,320);
+	  } else if (userMove == 0) {
+		mouthmod = 100;
+		if (mouthcounter % mouthmod <= mouthmod / 11)
+			ctx.drawImage(pacman,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 2 / 11)
+			ctx.drawImage(pacman_slightlyopen_r,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 3 / 11)
+			ctx.drawImage(pacman_open_r,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 4 / 11)
+			ctx.drawImage(pacman_dying1,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 5 / 11)
+			ctx.drawImage(pacman_dying2,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 6 / 11)
+			ctx.drawImage(pacman_dying3,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 7 / 11)
+			ctx.drawImage(pacman_dying4,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 8 / 11)
+			ctx.drawImage(pacman_dying5,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 9 / 11)
+			ctx.drawImage(pacman_dying6,userX,userY);
+		else if (mouthcounter % mouthmod <= mouthmod * 10 / 11)
+			ctx.drawImage(pacman_dying7,userX,userY);
+		else {
+			ctx.drawImage(pacman_dying8,userX,userY);
+			numOfLives -= 1;
+			startOver();
+		}
+		if (numOfLives < 0)
+			playing = false;
+		mouthcounter++;
+	  } else {
+          	if (mouthcounter % mouthmod <= mouthmod / 3)
+	     		ctx.drawImage(pacman,userX,userY);
+	  	else if (pacright == true) {
+	    		if (mouthcounter % mouthmod <= mouthmod * 2 / 3)
+	      			ctx.drawImage(pacman_slightlyopen_r,userX,userY);
+	    		else
+	      			ctx.drawImage(pacman_open_r,userX,userY);
+           	} else if (pacleft == true) {
+            		if (mouthcounter % mouthmod <= mouthmod * 2 / 3)
+	       			ctx.drawImage(pacman_slightlyopen_l,userX,userY);
+            		else
+              			ctx.drawImage(pacman_open_l,userX,userY);
+           	} else if (pacup == true) {
+            		if (mouthcounter % mouthmod <= mouthmod * 2 / 3)
+	         		ctx.drawImage(pacman_slightlyopen_u,userX,userY);
+            		else
+              			ctx.drawImage(pacman_open_u,userX,userY);
+	   	} else if (pacdown == true) {
+            		if (mouthcounter % mouthmod <= mouthmod * 2 / 3)
+	       			ctx.drawImage(pacman_slightlyopen_d,userX,userY);
+            		else
+              			ctx.drawImage(pacman_open_d,userX,userY);
+           	}
+
+		if (blinkyFlashing && areBlue)
+			ctx.drawImage(flash1,blinkyX,blinkyY);
+		else if (blinkycounter % 16 <= 8) {
+			if (blinkyFlashing)
+				ctx.drawImage(flash1,blinkyX,blinkyY);
+			else if (blinkyup)
+		   		ctx.drawImage(blinky_up1,blinkyX,blinkyY);
+			else if (blinkydown)
+				ctx.drawImage(blinky_down1,blinkyX,blinkyY);
+			else if (blinkyright)
+				ctx.drawImage(blinky_right1,blinkyX,blinkyY);
+			else if (blinkyleft)
+				ctx.drawImage(blinky_left1,blinkyX,blinkyY);
+		}
+		else {
+			if (blinkyFlashing)
+				ctx.drawImage(flash2,blinkyX,blinkyY);
+			else if (blinkyup == true)
+				ctx.drawImage(blinky_up2,blinkyX,blinkyY);
+			else if (blinkydown == true)
+				ctx.drawImage(blinky_down2,blinkyX,blinkyY);
+			else if (blinkyright == true)
+				ctx.drawImage(blinky_right2,blinkyX,blinkyY);
+			else if (blinkyleft == true)
+				ctx.drawImage(blinky_left2,blinkyX,blinkyY);
+		}
+
+		if (pinkyFlashing && areBlue)
+			ctx.drawImage(flash1,pinkyX,pinkyY);
+		else if (pinkycounter % 16 <= 8) {
+			if (pinkyFlashing)
+				ctx.drawImage(flash1,pinkyX,pinkyY);
+			else if (pinkyup == true)
+		   		ctx.drawImage(pinky_up1,pinkyX,pinkyY);
+			else if (pinkydown == true)
+				ctx.drawImage(pinky_down1,pinkyX,pinkyY);
+			else if (pinkyright == true)
+				ctx.drawImage(pinky_right1,pinkyX,pinkyY);
+			else if (pinkyleft == true)
+				ctx.drawImage(pinky_left1,pinkyX,pinkyY);
+		}
+		else {
+			if (pinkyFlashing)
+				ctx.drawImage(flash2,pinkyX,pinkyY);
+			else if (pinkyup == true)
+				ctx.drawImage(pinky_up2,pinkyX,pinkyY);
+			else if (pinkydown == true)
+				ctx.drawImage(pinky_down2,pinkyX,pinkyY);
+			else if (pinkyright == true)
+				ctx.drawImage(pinky_right2,pinkyX,pinkyY);
+			else if (pinkyleft == true)
+				ctx.drawImage(pinky_left2,pinkyX,pinkyY);
+		}
+
+		if (inkyFlashing && areBlue)
+			ctx.drawImage(flash1,inkyX,inkyY);
+		else if (inkycounter % 16 <= 8) {
+			if (inkyFlashing)
+				ctx.drawImage(flash1,inkyX,inkyY);
+			else if (inkyup == true)
+		   		ctx.drawImage(inky_up1,inkyX,inkyY);
+			else if (inkydown == true)
+				ctx.drawImage(inky_down1,inkyX,inkyY);
+			else if (inkyright == true)
+				ctx.drawImage(inky_right1,inkyX,inkyY);
+			else if (inkyleft == true)
+				ctx.drawImage(inky_left1,inkyX,inkyY);
+		}
+		else {
+			if (inkyFlashing)
+				ctx.drawImage(flash2,inkyX,inkyY);
+			else if (inkyup == true)
+				ctx.drawImage(inky_up2,inkyX,inkyY);
+			else if (inkydown == true)
+				ctx.drawImage(inky_down2,inkyX,inkyY);
+			else if (inkyright == true)
+				ctx.drawImage(inky_right2,inkyX,inkyY);
+			else if (inkyleft == true)
+				ctx.drawImage(inky_left2,inkyX,inkyY);
+		}
+
+		if (clydeFlashing && areBlue)
+			ctx.drawImage(flash1,clydeX,clydeY);
+		else if (clydecounter % 16 <= 8) {
+			if (clydeFlashing)
+				ctx.drawImage(flash1,clydeX,clydeY);
+			else if (clydeup == true)
+		   		ctx.drawImage(clyde_up1,clydeX,clydeY);
+			else if (clydedown == true)
+				ctx.drawImage(clyde_down1,clydeX,clydeY);
+			else if (clyderight == true)
+				ctx.drawImage(clyde_right1,clydeX,clydeY);
+			else if (clydeleft == true)
+				ctx.drawImage(clyde_left1,clydeX,clydeY);
+		}
+		else {
+			if (clydeFlashing)
+				ctx.drawImage(flash2,clydeX,clydeY);
+			else if (clydeup == true)
+				ctx.drawImage(clyde_up2,clydeX,clydeY);
+			else if (clydedown == true)
+				ctx.drawImage(clyde_down2,clydeX,clydeY);
+			else if (clyderight == true)
+				ctx.drawImage(clyde_right2,clydeX,clydeY);
+			else if (clydeleft == true)
+				ctx.drawImage(clyde_left2,clydeX,clydeY);
+		}
+
+		now = new Date();
+		if (now.getTime() - starttime.getTime() < 5500) {
+			ctx.drawImage(ready,175,320);
+		} else if (areBlue && now.getTime() - startFlashingTime.getTime() > 5000) {
+			areBlue = false;
+			areFlashing = true;
+		} else if (areFlashing && now.getTime() - startFlashingTime.getTime() > 7000) {
+			areFlashing = false;
+			blinkyFlashing = false;
+			pinkyFlashing = false;
+			inkyFlashing = false;
+			clydeFlashing = false;
+
+		} else {
+
+			moveBlinky();
+			movePinky();
+			moveInky();
+	   		moveClyde();
+		   	movePacman();
+		   	eatDots();
+		   	eatPowerups();
+			isWin();
+	
+			if (areFlashing || areBlue)
+				pacmanEatsGhosts();
+			else
+			   	ghostsEatPacman();
+		   	updateTime();	
+
+			if (letPinkyOut == true && pinkyIsOut == false) {
+				startPinky();
+				pinkyIsOut = true;
+			}
+			if (letInkyOut == true && inkyIsOut == false) {
+				startInky();
+				inkyIsOut = true;
+			}
+			if (letClydeOut == true && clydeIsOut == false) {
+				startClyde();
+				clydeIsOut = true;
+			}
+		}
+	}
+
+	}
+
+	function isWin() {
+		var i = 0;
+		for (i = 0; i < dots.length && !dots[i].visible; i++);
+		if (i == dots.length)
+			playing = false;
+	}//end isWin()
+	
+</script>
+</head>
+
+<body onload="init()">
+<canvas id="canvas" width="448" height="576">
+Your browser does not support the canvas element.
+</canvas>
+
+
+</body>
+</html>
